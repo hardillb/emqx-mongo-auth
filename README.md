@@ -1,5 +1,7 @@
 # EMQX HTTP Authentication/Authorizaion backend
 
+Intended to be used with Node-RED Amazon Alexa and Google Home backend
+
 ## Configure
 
 Needs the following environment variables setting

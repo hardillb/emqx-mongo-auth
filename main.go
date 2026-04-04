@@ -33,7 +33,7 @@ type ACL struct {
 type AuthResponse struct {
 	Result    string `json:"result"`
 	SuperUser bool   `json:"is_superuser"`
-	ACL       []ACL  `json:"acl"`
+	ACL       []ACL  `json:"acl,omitempty"`
 }
 
 type AccountRecord struct {
@@ -104,7 +104,7 @@ func main() {
 			return
 		}
 		var result AccountRecord
-		err = coll.FindOne(context.TODO(), bson.D{{"username", user.Username}}).Decode(&result)
+		err = coll.FindOne(context.TODO(), bson.D{{Key: "username", Value: user.Username}}).Decode(&result)
 		if err != nil {
 			fmt.Printf("db not found %s\n", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -126,6 +126,8 @@ func main() {
 		keyLen = len(hashedPassword)
 		key, err := pbkdf2.Key(sha256.New, user.Password, salt, iterations, keyLen)
 		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
 		}
 
 		var authRes AuthResponse
@@ -133,22 +135,24 @@ func main() {
 			fmt.Print(user.Username, " match\n")
 			authRes.Result = "allow"
 			authRes.SuperUser = result.SuperUser
-			authRes.ACL = []ACL{
-				ACL{
-					Permission: "allow",
-					Action:     "publish",
-					Topic:      "status/" + result.Username + "/#",
-				},
-				ACL{
-					Permission: "allow",
-					Action:     "publish",
-					Topic:      "response/" + result.Username + "/#",
-				},
-				ACL{
-					Permission: "allow",
-					Action:     "subscribe",
-					Topic:      "command/" + result.Username + "/#",
-				},
+			if !result.SuperUser {
+				authRes.ACL = []ACL{
+					ACL{
+						Permission: "allow",
+						Action:     "publish",
+						Topic:      "status/" + result.Username + "/#",
+					},
+					ACL{
+						Permission: "allow",
+						Action:     "publish",
+						Topic:      "response/" + result.Username + "/#",
+					},
+					ACL{
+						Permission: "allow",
+						Action:     "subscribe",
+						Topic:      "command/" + result.Username + "/#",
+					},
+				}
 			}
 		} else {
 			fmt.Print(user.Username, " fail\n")
