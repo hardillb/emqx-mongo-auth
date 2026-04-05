@@ -137,7 +137,7 @@ func main() {
 			return
 		}
 		var result AccountRecord
-		err = coll.FindOne(context.TODO(), bson.D{{Key: "username", Value: user.Username}}).Decode(&result)
+		err = coll.FindOne(context.TODO(), bson.D{{Key: usernameField, Value: user.Username}}).Decode(&result)
 		if err != nil {
 			fmt.Printf("db not found %s\n", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
