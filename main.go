@@ -73,10 +73,37 @@ func (h pbkdf2Hasher) compareBytes(a, b []byte) bool {
 	return true
 }
 
-func main() {
+var port int
+var mqttPassField string
+var usernameField string
 
-	var port int
+func (m *AccountRecord) UnmarshalBSON(data []byte) error {
+	var raw bson.D
+	if err := bson.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+
+	for _, elem := range raw {
+		switch elem.Key {
+		case mqttPassField:
+			m.MQTTPass = elem.Value.(string)
+		case usernameField:
+			m.Username = elem.Value.(string)
+		case "email":
+			m.Email = elem.Value.(string)
+		case "superuser":
+			fmt.Printf("%d\n", elem.Value)
+			m.SuperUser = elem.Value.(int32) != 0
+		}
+	}
+
+	return nil
+}
+
+func main() {
 	flag.IntVar(&port, "port", 8080, "Listen on port")
+	flag.StringVar(&mqttPassField, "passField", "mqttPass", "Collection field holding password hash")
+	flag.StringVar(&usernameField, "userField", "username", "Collection field holding username")
 	flag.Parse()
 
 	uri := os.Getenv("MONGODB_URI")
