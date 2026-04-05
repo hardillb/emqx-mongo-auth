@@ -11,7 +11,11 @@ client
  - MONGODB_DB=assistant
  - MONGODB_COLLECTION=accounts
 
-Listening port can be configured with `--port`, default `8080`
+Command line Arguments
+
+ - `--port`, default `8080`
+ - `--passField`, default `mqttPass`
+ - `--userField`, default `username`
 
  ## MongoDB
 
