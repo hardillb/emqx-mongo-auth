@@ -4,8 +4,17 @@ Intended to be used with Node-RED Amazon Alexa and Google Home backend
 
 ## Configure
 
-Needs the following environment variables setting
+Needs the following environment variables setting to configure MongoDD
+client
 
  - MONGODB_URI=mongodb://root:secret@127.0.0.1:27017
  - MONGODB_DB=assistant
  - MONGODB_COLLECTION=accounts
+
+Listening port can be configured with `--port`, default `8080`
+
+ ## MongoDB
+
+ It expects the MongoDB Collection to have a field called `username` and
+ `mqttPass` which should be in PBKDF2 format, currently on SHA256 hashes
+ are supported.

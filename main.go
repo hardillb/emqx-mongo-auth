@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -73,6 +74,11 @@ func (h pbkdf2Hasher) compareBytes(a, b []byte) bool {
 }
 
 func main() {
+
+	var port int
+	flag.IntVar(&port, "port", 8080, "Listen on port")
+	flag.Parse()
+
 	uri := os.Getenv("MONGODB_URI")
 	db := os.Getenv("MONGODB_DB")
 	collection := os.Getenv("MONGODB_COLLECTION")
@@ -132,7 +138,7 @@ func main() {
 
 		var authRes AuthResponse
 		if hash.compareBytes(hashedPassword, key) {
-			fmt.Print(user.Username, " match\n")
+			log.Print(user.Username, " match\n")
 			authRes.Result = "allow"
 			authRes.SuperUser = result.SuperUser
 			if !result.SuperUser {
@@ -155,13 +161,13 @@ func main() {
 				}
 			}
 		} else {
-			fmt.Print(user.Username, " fail\n")
+			log.Print(user.Username, " fail\n")
 			authRes.Result = "deny"
 			authRes.SuperUser = false
 		}
 		json.NewEncoder(w).Encode(authRes)
 
 	})
-	log.Print("listening\n")
-	log.Fatal(http.ListenAndServe(":8080", mux))
+	log.Printf("listening on %d\n", port)
+	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(port), mux))
 }
