@@ -1,4 +1,4 @@
-# EMQX HTTP Authentication/Authorizaion backend
+# EMQX HTTP Authentication/Authorization backend
 
 Intended to be used with Node-RED Amazon Alexa and Google Home backend
 
